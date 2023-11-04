@@ -6,7 +6,7 @@ public class FloorGrid : MonoBehaviour
 {
     public int gridLength = 11;  // 11*11 的grid
     public float x_min = -5.5f, x_max = 5.5f, z_min = -10.5f, z_max = 0.5f;
-    public GameObject gridFloor;
+    public GameObject gridFloor, visualizingCube;
      
     ArrayList placedIds = new ArrayList();  // 上面的下标。行数*gridLength+列数
 
@@ -16,7 +16,7 @@ public class FloorGrid : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //"/room/grid"
+        //挂载在"/room/grid"上
         roomTransform = transform.parent;
     }
 
@@ -26,17 +26,30 @@ public class FloorGrid : MonoBehaviour
         
     }
 
+    public void VisualizeCoord(Vector2 posRS)
+    {
+        Vector3 gridCoord = new Vector3();
+        if(!transformToGridCoord(posRS, ref gridCoord))
+        {
+            visualizingCube.SetActive(false);
+            return;
+        }
+        visualizingCube.SetActive(true);
+        visualizingCube.transform.localPosition = gridCoord;
+    }
+
     /// <summary>
-    /// 在输入位置所对应的grid上放置一个块
+    /// 在输入位置所对应的grid上放置一个块, 返回false如果超出范围.
     /// </summary>
     /// <param name="posRS">指向地板的点相对于自己所处房间的坐标</param>
-    public void placeCube(Vector2 posRS, Color color)
+    public bool placeCube(Vector2 posRS, Color color)
     {
         Debug.Log("Try to place a brick");
-        Vector3 gridCoord = new Vector2();
+        visualizingCube.SetActive(false);   // 关掉位置指示.
+        Vector3 gridCoord = new Vector3();
         if (!transformToGridCoord(posRS, ref gridCoord))
         {
-            return;   // 什么也不做
+            return false;   // 什么也不做
         }
         // 放置方块
         // "/room/grid/..."
@@ -56,6 +69,8 @@ public class FloorGrid : MonoBehaviour
             blues += 1;
         else
             whites += 1;
+        
+        return true;
     }
 
     bool transformToGridCoord(Vector2 posRS, ref Vector3 gridCoord)

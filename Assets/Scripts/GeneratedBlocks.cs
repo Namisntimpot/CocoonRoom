@@ -10,20 +10,45 @@ public class GeneratedBlocks : MonoBehaviour
     bool isPicked = false, isPlaced = false;
     public Color color;
 
-    public SteamVR_Action_Pose pose = SteamVR_Input.GetAction<SteamVR_Action_Pose>("default", "pose");
+    //public SteamVR_Action_Pose pose = SteamVR_Input.GetAction<SteamVR_Action_Pose>("default", "pose");
     public SteamVR_Action_Boolean grabpinch = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("default", "grabpinch");  // 用来判断是哪只手按下
     SteamVR_Input_Sources hand = SteamVR_Input_Sources.Any;  // 左手或是右手
 
     Vector2 coordToPlace;   // 用来放方块的 room空间坐标.
-    Vector3 roomOrigin;     // 其所属的房间的世界坐标.
+    Transform roomTransform;     // 其所属的房间的世界坐标. 注意它会变..
+    Transform[] controllerTransforms;
 
     FloorGrid floorGrid; 
+
+    static public void GenerateSmallCubes(Transform[] positions, Color[] colors)
+    {
+
+    }
+
+    static public void GenerateASmallCube(Transform position, Color color)
+    {
+
+    }
 
     void Start()
     {
         // "/room/smallblocks/smallblock"
-        roomOrigin = this.transform.parent.parent.position;
+        roomTransform = this.transform.parent.parent;
+        controllerTransforms = roomTransform.GetComponent<Global>().Controllers;
         floorGrid = this.transform.parent.parent.GetComponentInChildren<FloorGrid>();
+    }
+
+    private void Awake()
+    {
+        Throwable throwable = GetComponent<Throwable>();
+        throwable.onPickUp.AddListener(onPickup);
+        throwable.onDetachFromHand.AddListener(onDetach);
+    }
+    private void OnDestroy()
+    {
+        Throwable throwable = GetComponent<Throwable>();
+        throwable.onPickUp.RemoveListener(onPickup);
+        throwable.onDetachFromHand.RemoveListener(onDetach);
     }
 
     // Update is called once per frame
@@ -31,30 +56,40 @@ public class GeneratedBlocks : MonoBehaviour
     {
         if (!isPicked)
             return;
-        var pos = pose[hand].localPosition;  // 相对于universe origin
-        var rot = pose[hand].localRotation;
-        var forward = (rot * Vector3.forward).normalized;
+        //var pos = pose[hand].localPosition;  // 相对于universe origin
+        //var rot = pose[hand].localRotation;
+        int index = hand == SteamVR_Input_Sources.LeftHand ? 0 : 1;
+        var pos = controllerTransforms[index].position;  // 世界坐标
+        var forward = controllerTransforms[index].forward;   // 前向
+        //var forward = (rot * Vector3.forward).normalized;
         computeCoordToPlace(pos, forward);
+        floorGrid.VisualizeCoord(coordToPlace);
     }
 
     public void onPickup()
     {
         isPicked = true;
-        this.GetComponent<Animation>().Stop();
         this.GetComponent<Rigidbody>().useGravity = true;
         if (grabpinch[SteamVR_Input_Sources.LeftHand].state)
             hand = SteamVR_Input_Sources.LeftHand;
         else
             hand = SteamVR_Input_Sources.RightHand;
-        Debug.Log(hand);
+        Debug.Log("Picked with hand " + hand);
     }
 
     public void onDetach()
     {
-        Debug.Log("Detach");
+        Debug.Log("Detached");
         isPicked = false;
         isPlaced = true;
-        floorGrid.placeCube(coordToPlace, color);
+        if(floorGrid.placeCube(coordToPlace, color))  // 成功放了一个块
+        {
+            DestroyGameObject();
+        }
+        else
+        {
+            Invoke("DestroyGameObject", 1);
+        }
     }
 
     /// <summary>
@@ -65,12 +100,17 @@ public class GeneratedBlocks : MonoBehaviour
     void computeCoordToPlace(Vector3 controllerWS, Vector3 forwardWS)
     {
         // 计算相对于本房间的坐标, roomSpace
-        Vector3 posRS = controllerWS - roomOrigin;
+        Vector3 posRS = controllerWS - roomTransform.position;
         // 从posRS原点，打出方向forwardWS, 求交. y 是 0.
-        float t = -controllerWS.y / forwardWS.y;
-        float x = controllerWS.x + forwardWS.x * t;
-        float z = controllerWS.z + forwardWS.z * t;
+        float t = -posRS.y / forwardWS.y;
+        float x = posRS.x + forwardWS.x * t;
+        float z = posRS.z + forwardWS.z * t;
         coordToPlace = new Vector2(x, z);
         Debug.Log(coordToPlace + ", " + controllerWS + ", " + forwardWS);
+    }
+
+    void DestroyGameObject()
+    {
+        Destroy(this.gameObject);
     }
 }
