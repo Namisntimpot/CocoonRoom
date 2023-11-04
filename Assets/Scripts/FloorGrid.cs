@@ -9,21 +9,21 @@ public class FloorGrid : MonoBehaviour
         RowAdd, RowMinus, ColAdd, ColMinus, CantMove,
     };
 
-    public int gridLength = 11;  // 11*11 µÄgrid
+    public int gridLength = 11;  // 11*11 ï¿½ï¿½grid
     public float x_min = -5.5f, x_max = 5.5f, z_min = -5.5f, z_max = 5.5f;
     public GameObject gridFloor, visualizingCube, generatedCube;
      
-    ArrayList placedIds = new ArrayList();  // ÉÏÃæµÄÏÂ±ê¡£ĞĞÊı*gridLength+ÁĞÊı
+    ArrayList placedIds = new ArrayList();  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â±ê¡£ï¿½ï¿½ï¿½ï¿½*gridLength+ï¿½ï¿½ï¿½ï¿½
     int[,] grid;
 
-    Transform roomTransform;   // ×Ô¼ºËù´¦µÄroom
+    Transform roomTransform;   // è‡ªå·±æ‰€å¤„çš„room
 
     public int redCubeCnt = 0, greenCubeCnt = 0, blueCubeCnt = 0, whiteCubeCnt = 0;
     int redLandCnt=0, greenLandCnt=0, blueLandCnt=0, whiteLandCnt=0;
     // Start is called before the first frame update
     void Start()
     {
-        //¹ÒÔØÔÚ"/room/grid"ÉÏ
+        //æŒ‚è½½åœ¨"/room/grid"ä¸Š
         roomTransform = transform.parent;
         grid = new int[gridLength, gridLength];
     }
@@ -48,7 +48,7 @@ public class FloorGrid : MonoBehaviour
 
     public void pickUpCube(Color color)
     {
-        // ¼ñÆğÒ»¸öÕâ¸öÑÕÉ«µÄ¿é.
+        // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½Ä¿ï¿½.
         if (color == Color.red)
             redCubeCnt--;
         else if (color == Color.blue)
@@ -60,34 +60,34 @@ public class FloorGrid : MonoBehaviour
     }
 
     /// <summary>
-    /// ÔÚÊäÈëÎ»ÖÃËù¶ÔÓ¦µÄgridÉÏ·ÅÖÃÒ»¸ö¿é, ·µ»ØfalseÈç¹û³¬³ö·¶Î§.
+    /// åœ¨è¾“å…¥ä½ç½®æ‰€å¯¹åº”çš„gridä¸Šæ”¾ç½®ä¸€ä¸ªå—, è¿”å›falseå¦‚æœè¶…å‡ºèŒƒå›´.
     /// </summary>
-    /// <param name="posRS">Ö¸ÏòµØ°åµÄµãÏà¶ÔÓÚ×Ô¼ºËù´¦·¿¼äµÄ×ø±ê</param>
+    /// <param name="posRS">æŒ‡å‘åœ°æ¿çš„ç‚¹ç›¸å¯¹äºè‡ªå·±æ‰€å¤„æˆ¿é—´çš„åæ ‡</param>
     public bool placeCube(Vector2 posRS, Color color)
     {
         Debug.Log("Try to place a brick");
-        visualizingCube.SetActive(false);   // ¹ØµôÎ»ÖÃÖ¸Ê¾.
+        visualizingCube.SetActive(false);   // å…³æ‰ä½ç½®æŒ‡ç¤º.
         Vector3 gridCoord = new Vector3();
         if (!transformToGridCoord(posRS, ref gridCoord))
         {
-            return false;   // Ê²Ã´Ò²²»×ö
+            return false;   // ä»€ä¹ˆä¹Ÿä¸åš
         }
         int row = (int)(gridCoord.x - x_min);
         int col = (int)(gridCoord.z - z_min);
         if (grid[row, col] != 0)
-            return false;  // ÖØµşÁË.
-        // ·ÅÖÃ·½¿é
+            return false;  // ï¿½Øµï¿½ï¿½ï¿½.
+        // ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½
         // "/room/grid/..."
         GameObject instance = Instantiate(gridFloor, this.transform, false);
         instance.transform.localPosition = gridCoord;
         instance.GetComponent<MeshRenderer>().material.color = color;
         Debug.Log("place cube in " + gridCoord);
-        // Í³¼Æ
+        // Í³ï¿½ï¿½
         placedIds.Add(new Vector2(gridCoord.x, gridCoord.z));
-        // ÑÕÉ«±àºÅĞ´ÈëÊı×é
+        // ï¿½ï¿½É«ï¿½ï¿½ï¿½Ğ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         int colorId = GetColorId(ref color);
         grid[row, col] = colorId;
-        // ·ÖÀàÍ³¼ÆµØ×©ÊıÁ¿
+        // ï¿½ï¿½ï¿½ï¿½Í³ï¿½Æµï¿½×©ï¿½ï¿½ï¿½ï¿½
         if (color == Color.red)
             redLandCnt += 1;
         else if (color == Color.green)
@@ -97,7 +97,7 @@ public class FloorGrid : MonoBehaviour
         else
             whiteLandCnt += 1;
 
-        // ÅĞ¶ÏÖÜÎ§ÊÇ·ñÓĞĞ§.
+        // ï¿½Ğ¶ï¿½ï¿½ï¿½Î§ï¿½Ç·ï¿½ï¿½ï¿½Ğ§.
         if(checkValidRowCol(row, col, colorId))
         {
             grid[row, col] = colorId;
@@ -105,7 +105,7 @@ public class FloorGrid : MonoBehaviour
         }
         else
         {
-            // Ñ°ÕÒÏÂÒ»¸ö¿ÉÄÜµÄÎ»ÖÃ Èç¹ûfinded£¬¾ÍÎü¸½¹ıÈ¥£»Èç¹ûÃ»ÓĞÕÒµ½£¬¾ÍÒÆ¶¯Ò»Ğ¡¶ÎÖ®ºóÏûÊ§.
+            // Ñ°ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½Î»ï¿½ï¿½ ï¿½ï¿½ï¿½findedï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½Ò»Ğ¡ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½Ê§.
             bool finded = findNextPlace(row, col, colorId, out MoveDirection move);
             instance.GetComponent<MoveLandCube>().MoveTo(move, finded);
             if (finded)
@@ -132,9 +132,9 @@ public class FloorGrid : MonoBehaviour
 
     bool transformToGridCoord(Vector2 posRS, ref Vector3 gridCoord)
     {
-        int x = (int)(posRS.x + 0.5f), z = (int)(posRS.y + 0.5f);  // ËÄÉáÎåÈë
+        int x = (int)(posRS.x + 0.5f), z = (int)(posRS.y + 0.5f);  // å››èˆäº”å…¥
         if (x < x_min || x > x_max || z < z_min || z > z_max)
-            return false;  // ³¬½ç
+            return false;  // è¶…ç•Œ
         gridCoord.x = x;
         gridCoord.y = 0f;
         gridCoord.z = z;
@@ -163,7 +163,7 @@ public class FloorGrid : MonoBehaviour
     }
 
     /// <summary>
-    /// ÅĞ¶ÏÕâ¸öÎ»ÖÃÊÇ·ñºÏ·¨(ÖÜÎ§ÏàÁÚÎ»ÖÃÊÇ·ñÓĞ²»Í¬ÑÕÉ«µÄ)
+    /// ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½Ç·ï¿½Ï·ï¿½(ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ğ²ï¿½Í¬ï¿½ï¿½É«ï¿½ï¿½)
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
@@ -183,7 +183,7 @@ public class FloorGrid : MonoBehaviour
     }
 
     /// <summary>
-    /// Ñ°ÕÒÏÂÒ»¸öÎ»ÖÃ¿ÉÄÜµÄÎ»ÖÃ. Èç¹ûÃ»Âúµ«ÊÇÃ»ÓĞºÏÊÊµÄ·½Ïò£¬¾ÍËæ»úÒ»¸öÃ»ÂúµÄÈ»ºóÏûÊ§.
+    /// Ñ°ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Î»ï¿½Ã¿ï¿½ï¿½Üµï¿½Î»ï¿½ï¿½. ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ğºï¿½ï¿½ÊµÄ·ï¿½ï¿½ò£¬¾ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½Ê§.
     /// </summary>
     bool findNextPlace(int row, int col, int colorId, out MoveDirection move)
     {
@@ -213,5 +213,40 @@ public class FloorGrid : MonoBehaviour
                 return true;
         }
         return false;
+    }
+
+
+    public int generateRate = 1;    //æ•´ä½“ç”Ÿæˆæ•ˆç‡
+    public float gameDifficulty = 0.25f;   //ç™½è‰²ç”Ÿæˆæ¦‚ç‡æœ€å¤§å€¼
+    public void GenerateCubes(Vector3[] positions, Color[] colors){
+
+        int existColorLandSum = redLandCnt + blueLandCnt + greenLandCnt;
+        float whitePossibility = (1 - (Mathf.Pow(existColorLandSum - redLandCnt, 2) + Mathf.Pow(existColorLandSum - greenLandCnt, 2) + Mathf.Pow(existColorLandSum - blueLandCnt, 2)) / Mathf.Pow(existColorLandSum * (2/3), 2)) * gameDifficulty;
+        if(whitePossibility < 0.05f) whitePossibility = 0.05f;
+        float redPossibility = (redLandCnt / existColorLandSum) * (1 - whitePossibility);
+        float greenPossibility = (greenLandCnt / existColorLandSum) * (1 - whitePossibility);
+        float bluePossibility = (blueLandCnt / existColorLandSum) * (1 - whitePossibility);
+
+        int targetSum = (3 + (existColorLandSum + whiteLandCnt) / 3) * generateRate;
+        int needAddCount = targetSum - (redCubeCnt + greenCubeCnt + blueCubeCnt + whiteCubeCnt);
+        for(int i = 0; i < needAddCount; i++) {
+            float seedColor = Random.Range(0f, 1f);
+            if(seedColor < whitePossibility) {
+                colors[i] = Color.white;
+            }
+            else if(seedColor < whitePossibility + redPossibility) {
+                colors[i] = Color.red;
+            }
+            else if(seedColor < whitePossibility + redPossibility + greenPossibility) {
+                colors[i] = Color.green;
+            }
+            else {
+                colors[i] = Color.blue;
+            }
+
+            int seedPosition = Mathf.RoundToInt(Random.Range(0f, placedIds.Count - 1f));
+            positions[i] = new Vector3(((Vector2)placedIds[seedPosition]).x + Random.Range(-0.5f, 0.5f), Random.Range(0.3f, 0.4f), ((Vector2)placedIds[seedPosition]).y + Random.Range(-0.5f, 0.5f));
+        }
+
     }
 }
