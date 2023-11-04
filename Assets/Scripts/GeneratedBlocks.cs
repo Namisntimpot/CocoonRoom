@@ -109,6 +109,4 @@ public class GeneratedBlocks : MonoBehaviour
     {
         Destroy(this.gameObject);
     }
-
-
 }

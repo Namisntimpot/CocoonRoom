@@ -13,16 +13,16 @@ public class MoveLandCube : MonoBehaviour
         switch (move)
         {
             case FloorGrid.MoveDirection.ColAdd:
-                dir.z = 0.5f;
-                break;
-            case FloorGrid.MoveDirection.ColMinus:
-                dir.z = -0.5f;
-                break;
-            case FloorGrid.MoveDirection.RowAdd:
                 dir.x = 0.5f;
                 break;
-            case FloorGrid.MoveDirection.RowMinus:
+            case FloorGrid.MoveDirection.ColMinus:
                 dir.x = -0.5f;
+                break;
+            case FloorGrid.MoveDirection.RowAdd:
+                dir.z = 0.5f;
+                break;
+            case FloorGrid.MoveDirection.RowMinus:
+                dir.z = -0.5f;
                 break;
         }
         rigidbody.AddForce(dir, ForceMode.VelocityChange);
@@ -35,6 +35,7 @@ public class MoveLandCube : MonoBehaviour
     void AttachToGrid()
     {
         // 直接四舍五入即可.
+        GetComponent<Rigidbody>().velocity = Vector3.zero;
         Vector3 pos = transform.localPosition;
         pos.x = (int)(pos.x + 0.5f);
         pos.z = (int)(pos.z + 0.5f);
