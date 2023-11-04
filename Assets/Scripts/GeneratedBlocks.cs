@@ -20,19 +20,9 @@ public class GeneratedBlocks : MonoBehaviour
 
     FloorGrid floorGrid; 
 
-    static public void GenerateSmallCubes(Transform[] positions, Color[] colors)
-    {
-
-    }
-
-    static public void GenerateASmallCube(Transform position, Color color)
-    {
-
-    }
-
     void Start()
     {
-        // "/room/smallblocks/smallblock"
+        // "/room/generatedblocks/generatedblock"
         roomTransform = this.transform.parent.parent;
         controllerTransforms = roomTransform.GetComponent<Global>().Controllers;
         floorGrid = this.transform.parent.parent.GetComponentInChildren<FloorGrid>();
@@ -74,6 +64,7 @@ public class GeneratedBlocks : MonoBehaviour
             hand = SteamVR_Input_Sources.LeftHand;
         else
             hand = SteamVR_Input_Sources.RightHand;
+        floorGrid.pickUpCube(color);
         Debug.Log("Picked with hand " + hand);
     }
 
@@ -106,11 +97,18 @@ public class GeneratedBlocks : MonoBehaviour
         float x = posRS.x + forwardWS.x * t;
         float z = posRS.z + forwardWS.z * t;
         coordToPlace = new Vector2(x, z);
-        Debug.Log(coordToPlace + ", " + controllerWS + ", " + forwardWS);
+    }
+
+    public void SetColor(Color color)
+    {
+        this.color = color;
+        transform.GetComponentInChildren<MeshRenderer>().material.color = color;
     }
 
     void DestroyGameObject()
     {
         Destroy(this.gameObject);
     }
+
+
 }

@@ -10,4 +10,14 @@ public class Global : MonoBehaviour
     {
         Color.red, Color.green, Color.blue, Color.white,
     };
+
+    static public int IndexOfColor(Color color)
+    {
+        for(int i = 0; i<cubeColors.Length; ++i)
+        {
+            if (cubeColors[i] == color)
+                return i;
+        }
+        return -1;
+    }
 }
