@@ -11,21 +11,21 @@ public class GeneratedBlocks : MonoBehaviour
     public Color color;
 
     //public SteamVR_Action_Pose pose = SteamVR_Input.GetAction<SteamVR_Action_Pose>("default", "pose");
-    public SteamVR_Action_Boolean grabpinch = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("default", "grabpinch");  // ÓÃÀ´ÅÐ¶ÏÊÇÄÄÖ»ÊÖ°´ÏÂ
-    SteamVR_Input_Sources hand = SteamVR_Input_Sources.Any;  // ×óÊÖ»òÊÇÓÒÊÖ
+    public SteamVR_Action_Boolean grabpinch = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("default", "grabpinch");  // ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½Ö°ï¿½ï¿½ï¿½
+    SteamVR_Input_Sources hand = SteamVR_Input_Sources.Any;  // ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    Vector2 coordToPlace;   // ÓÃÀ´·Å·½¿éµÄ room¿Õ¼ä×ø±ê.
-    Transform roomTransform;     // ÆäËùÊôµÄ·¿¼äµÄÊÀ½ç×ø±ê. ×¢ÒâËü»á±ä..
+    Vector2 coordToPlace;   // ï¿½ï¿½ï¿½ï¿½ï¿½Å·ï¿½ï¿½ï¿½ï¿½ roomï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½.
+    Transform roomTransform;     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. ×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..
     Transform[] controllerTransforms;
 
     FloorGrid floorGrid; 
 
-    static public void GenerateSmallCubes(Transform[] positions, Color[] colors)
+    public void GenerateSmallCubes(Transform[] positions, Color[] colors)
     {
 
     }
 
-    static public void GenerateASmallCube(Transform position, Color color)
+    public void GenerateASmallCube(Transform position, Color color)
     {
 
     }
@@ -56,11 +56,11 @@ public class GeneratedBlocks : MonoBehaviour
     {
         if (!isPicked)
             return;
-        //var pos = pose[hand].localPosition;  // Ïà¶ÔÓÚuniverse origin
+        //var pos = pose[hand].localPosition;  // ï¿½ï¿½ï¿½ï¿½ï¿½universe origin
         //var rot = pose[hand].localRotation;
         int index = hand == SteamVR_Input_Sources.LeftHand ? 0 : 1;
-        var pos = controllerTransforms[index].position;  // ÊÀ½ç×ø±ê
-        var forward = controllerTransforms[index].forward;   // Ç°Ïò
+        var pos = controllerTransforms[index].position;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        var forward = controllerTransforms[index].forward;   // Ç°ï¿½ï¿½
         //var forward = (rot * Vector3.forward).normalized;
         computeCoordToPlace(pos, forward);
         floorGrid.VisualizeCoord(coordToPlace);
@@ -82,7 +82,7 @@ public class GeneratedBlocks : MonoBehaviour
         Debug.Log("Detached");
         isPicked = false;
         isPlaced = true;
-        if(floorGrid.placeCube(coordToPlace, color))  // ³É¹¦·ÅÁËÒ»¸ö¿é
+        if(floorGrid.placeCube(coordToPlace, color))  // ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
         {
             DestroyGameObject();
         }
@@ -93,15 +93,15 @@ public class GeneratedBlocks : MonoBehaviour
     }
 
     /// <summary>
-    ///  ÓÃÀ´¼ÆËãÊÖ±úËùÖ¸ÏòµÄÓÃÀ´·Å¿éµÄÎ»ÖÃ
+    ///  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¿ï¿½ï¿½Î»ï¿½ï¿½
     /// </summary>
-    /// <param name="controllerWS"></param> ÊÖ±úµÄÊÀ½ç×ø±ê
-    /// <param name="forwardWS"></param>  ÊÖ±ú³¯ÏòµÄÊÀ½ç×ø±ê
+    /// <param name="controllerWS"></param> ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    /// <param name="forwardWS"></param>  ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     void computeCoordToPlace(Vector3 controllerWS, Vector3 forwardWS)
     {
-        // ¼ÆËãÏà¶ÔÓÚ±¾·¿¼äµÄ×ø±ê, roomSpace
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, roomSpace
         Vector3 posRS = controllerWS - roomTransform.position;
-        // ´ÓposRSÔ­µã£¬´ò³ö·½ÏòforwardWS, Çó½». y ÊÇ 0.
+        // ï¿½ï¿½posRSÔ­ï¿½ã£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½forwardWS, ï¿½ï¿½. y ï¿½ï¿½ 0.
         float t = -posRS.y / forwardWS.y;
         float x = posRS.x + forwardWS.x * t;
         float z = posRS.z + forwardWS.z * t;

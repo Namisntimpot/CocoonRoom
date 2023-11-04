@@ -4,19 +4,20 @@ using UnityEngine;
 
 public class FloorGrid : MonoBehaviour
 {
-    public int gridLength = 11;  // 11*11 µÄgrid
-    public float x_min = -5.5f, x_max = 5.5f, z_min = -10.5f, z_max = 0.5f;
+    public int gridLength = 11;  // 11*11 çš„grid
+    public float x_min = -5.5f, x_max = 5.5f, z_min = -5.5f, z_max = 5.5f;
     public GameObject gridFloor, visualizingCube;
      
-    ArrayList placedIds = new ArrayList();  // ÉÏÃæµÄÏÂ±ê¡£ĞĞÊı*gridLength+ÁĞÊı
+    ArrayList placedIds = new ArrayList();  // ä¸Šé¢çš„ä¸‹æ ‡ã€‚è¡Œæ•°*gridLength+åˆ—æ•°
 
-    Transform roomTransform;   // ×Ô¼ºËù´¦µÄroom
+    Transform roomTransform;   // è‡ªå·±æ‰€å¤„çš„room
 
-    int reds=0, greens=0, blues=0, whites=0;
+    public int redCubeCnt = 0, greenCubeCnt = 0, blueCubeCnt = 0, whiteCubeCnt = 0;
+    int redLandCnt=0, greenLandCnt=0, blueLandCnt=0, whiteLandCnt=0;
     // Start is called before the first frame update
     void Start()
     {
-        //¹ÒÔØÔÚ"/room/grid"ÉÏ
+        //æŒ‚è½½åœ¨"/room/grid"ä¸Š
         roomTransform = transform.parent;
     }
 
@@ -39,48 +40,84 @@ public class FloorGrid : MonoBehaviour
     }
 
     /// <summary>
-    /// ÔÚÊäÈëÎ»ÖÃËù¶ÔÓ¦µÄgridÉÏ·ÅÖÃÒ»¸ö¿é, ·µ»ØfalseÈç¹û³¬³ö·¶Î§.
+    /// åœ¨è¾“å…¥ä½ç½®æ‰€å¯¹åº”çš„gridä¸Šæ”¾ç½®ä¸€ä¸ªå—, è¿”å›falseå¦‚æœè¶…å‡ºèŒƒå›´.
     /// </summary>
-    /// <param name="posRS">Ö¸ÏòµØ°åµÄµãÏà¶ÔÓÚ×Ô¼ºËù´¦·¿¼äµÄ×ø±ê</param>
+    /// <param name="posRS">æŒ‡å‘åœ°æ¿çš„ç‚¹ç›¸å¯¹äºè‡ªå·±æ‰€å¤„æˆ¿é—´çš„åæ ‡</param>
     public bool placeCube(Vector2 posRS, Color color)
     {
         Debug.Log("Try to place a brick");
-        visualizingCube.SetActive(false);   // ¹ØµôÎ»ÖÃÖ¸Ê¾.
+        visualizingCube.SetActive(false);   // å…³æ‰ä½ç½®æŒ‡ç¤º.
         Vector3 gridCoord = new Vector3();
         if (!transformToGridCoord(posRS, ref gridCoord))
         {
-            return false;   // Ê²Ã´Ò²²»×ö
+            return false;   // ä»€ä¹ˆä¹Ÿä¸åš
         }
-        // ·ÅÖÃ·½¿é
+        // æ”¾ç½®æ–¹å—
         // "/room/grid/..."
         GameObject instance = Instantiate(gridFloor, this.transform, false);
         instance.transform.localPosition = gridCoord;
         instance.GetComponent<MeshRenderer>().material.color = color;
         Debug.Log("place cube in " + gridCoord);
-        // Í³¼Æ
+        // ç»Ÿè®¡
         int row = (int)gridCoord.x + gridLength / 2;
         int col = (int)gridCoord.z;
-        placedIds.Add(row * gridLength + col);
+        placedIds.Add(new Vector2(row, col));
         if (color == Color.red)
-            reds += 1;
+            redLandCnt += 1;
         else if (color == Color.green)
-            greens += 1;
+            greenLandCnt += 1;
         else if (color == Color.blue)
-            blues += 1;
+            blueLandCnt += 1;
         else
-            whites += 1;
+            whiteLandCnt += 1;
         
         return true;
     }
 
     bool transformToGridCoord(Vector2 posRS, ref Vector3 gridCoord)
     {
-        int x = (int)(posRS.x + 0.5f), z = (int)(posRS.y + 0.5f);  // ËÄÉáÎåÈë
+        int x = (int)(posRS.x + 0.5f), z = (int)(posRS.y + 0.5f);  // å››èˆäº”å…¥
         if (x < x_min || x > x_max || z < z_min || z > z_max)
-            return false;  // ³¬½ç
+            return false;  // è¶…ç•Œ
         gridCoord.x = x;
         gridCoord.y = 0f;
         gridCoord.z = z;
         return true;
+    }
+
+
+
+    public int generateRate = 1;    //æ•´ä½“ç”Ÿæˆæ•ˆç‡
+    public float gameDifficulty = 0.25f;   //ç™½è‰²ç”Ÿæˆæ¦‚ç‡æœ€å¤§å€¼
+    public void GenerateCubes(Vector3[] positions, Color[] colors){
+
+        int existColorLandSum = redLandCnt + blueLandCnt + greenLandCnt;
+        float whitePossibility = (1 - (Mathf.Pow(existColorLandSum - redLandCnt, 2) + Mathf.Pow(existColorLandSum - greenLandCnt, 2) + Mathf.Pow(existColorLandSum - blueLandCnt, 2)) / Mathf.Pow(existColorLandSum * (2/3), 2)) * gameDifficulty;
+        if(whitePossibility < 0.05f) whitePossibility = 0.05f;
+        float redPossibility = (redLandCnt / existColorLandSum) * (1 - whitePossibility);
+        float greenPossibility = (greenLandCnt / existColorLandSum) * (1 - whitePossibility);
+        float bluePossibility = (blueLandCnt / existColorLandSum) * (1 - whitePossibility);
+
+        int targetSum = (3 + (existColorLandSum + whiteLandCnt) / 3) * generateRate;
+        int needAddCount = targetSum - (redCubeCnt + greenCubeCnt + blueCubeCnt + whiteCubeCnt);
+        for(int i = 0; i < needAddCount; i++) {
+            float seedColor = Random.Range(0f, 1f);
+            if(seedColor < whitePossibility) {
+                colors[i] = Color.white;
+            }
+            else if(seedColor < whitePossibility + redPossibility) {
+                colors[i] = Color.red;
+            }
+            else if(seedColor < whitePossibility + redPossibility + greenPossibility) {
+                colors[i] = Color.green;
+            }
+            else {
+                colors[i] = Color.blue;
+            }
+
+            int seedPosition = Mathf.RoundToInt(Random.Range(0f, placedIds.Count - 1f));
+            positions[i] = new Vector3(((Vector2)placedIds[seedPosition]).x + Random.Range(-0.5f, 0.5f), Random.Range(0.3f, 0.4f), ((Vector2)placedIds[seedPosition]).y + Random.Range(-0.5f, 0.5f));
+        }
+
     }
 }
