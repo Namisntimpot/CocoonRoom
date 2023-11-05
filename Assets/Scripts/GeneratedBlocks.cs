@@ -12,6 +12,8 @@ public class GeneratedBlocks : MonoBehaviour
 
     //public SteamVR_Action_Pose pose = SteamVR_Input.GetAction<SteamVR_Action_Pose>("default", "pose");
     public SteamVR_Action_Boolean grabpinch = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("default", "grabpinch");  // �����ж�����ֻ�ְ���
+
+    static public Material[] generatedMat_RGBW = null;
     SteamVR_Input_Sources hand = SteamVR_Input_Sources.Any;  // ���ֻ�������
 
     Vector2 coordToPlace;   // �����ŷ���� room�ռ�����.
@@ -102,7 +104,17 @@ public class GeneratedBlocks : MonoBehaviour
     public void SetColor(Color color)
     {
         this.color = color;
-        transform.GetComponentInChildren<MeshRenderer>().material.color = color;
+        int index = Global.IndexOfColor(color);
+        if (generatedMat_RGBW == null)
+        {
+            Debug.Log("initiate generatedMat_RGBW");
+            generatedMat_RGBW = new Material[4];  //Resources就是Assets下
+            generatedMat_RGBW[0] = Resources.Load<Material>("Materials/generated_red");
+            generatedMat_RGBW[1] = Resources.Load<Material>("Materials/generated_green");
+            generatedMat_RGBW[2] = Resources.Load<Material>("Materials/generated_blue");
+            generatedMat_RGBW[3] = Resources.Load<Material>("Materials/generated_white");
+        }
+        transform.GetComponentInChildren<MeshRenderer>().material = generatedMat_RGBW[index];
     }
 
     void DestroyGameObject()

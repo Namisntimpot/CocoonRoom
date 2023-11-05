@@ -21,7 +21,7 @@ public class FloorGrid : MonoBehaviour
     Transform roomTransform;   // 自己所处的room
 
     public int redCubeCnt = 0, greenCubeCnt = 0, blueCubeCnt = 0, whiteCubeCnt = 0;
-    float redLandCnt = 0.01f, greenLandCnt = 0.01f, blueLandCnt = 0.01f, whiteLandCnt=4;
+    float redLandCnt = 0.2f, greenLandCnt = 0.2f, blueLandCnt = 0.2f, whiteLandCnt=4;
     // Start is called before the first frame update
     void Start()
     {
@@ -256,14 +256,14 @@ public class FloorGrid : MonoBehaviour
 
 
     public float generateRate = 1;    //整体生成效率
-    public float gameDifficulty = 1f;   //白色生成概率最大值
+    public float gameDifficulty = 0.15f;  //白色生成概率最大值
     public float eps = 1e-6f;
     public void GenerateCubes()
     {
         float existColorLandSum = redLandCnt + blueLandCnt + greenLandCnt;
-        float whitePossibility = (1 - (Mathf.Pow(existColorLandSum / 3 - redLandCnt, 2) + Mathf.Pow(existColorLandSum / 3 - greenLandCnt, 2) + Mathf.Pow(existColorLandSum / 3 - blueLandCnt, 2)) / (Mathf.Pow(existColorLandSum * (2/3), 2) + eps)) * gameDifficulty;
+        float whitePossibility = (1 - (Mathf.Pow(existColorLandSum / 3 - redLandCnt, 2) + Mathf.Pow(existColorLandSum / 3 - greenLandCnt, 2) + Mathf.Pow(existColorLandSum / 3 - blueLandCnt, 2)) / (Mathf.Pow(existColorLandSum * (2f/3f), 2))) * gameDifficulty;
         if(whitePossibility < 0.05f) whitePossibility = 0.05f;
-        if (existColorLandSum == 0.03f) whitePossibility = 0;
+        if (existColorLandSum == 0.6f) whitePossibility = 0;
         float redPossibility = (redLandCnt / (existColorLandSum)) * (1 - whitePossibility);
         float greenPossibility = (greenLandCnt / (existColorLandSum)) * (1 - whitePossibility);
         float bluePossibility = (blueLandCnt / (existColorLandSum)) * (1 - whitePossibility);

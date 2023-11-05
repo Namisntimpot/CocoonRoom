@@ -69,7 +69,7 @@ MonoBehaviour:
   blueCubeCnt: 0
   whiteCubeCnt: 0
   generateRate: 1
-  gameDifficulty: 0.25
+  gameDifficulty: 0.15
   eps: 0.000001
 --- !u!1 &4313536923470939249
 GameObject:
