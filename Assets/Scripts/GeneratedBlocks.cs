@@ -10,6 +10,9 @@ public class GeneratedBlocks : MonoBehaviour
     bool isPicked = false, isPlaced = false;
     public Color color;
 
+    static float duration = 40;  // 可以撑过8轮生成.
+    float generated_time;
+
     //public SteamVR_Action_Pose pose = SteamVR_Input.GetAction<SteamVR_Action_Pose>("default", "pose");
     public SteamVR_Action_Boolean grabpinch = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("default", "grabpinch");  // �����ж�����ֻ�ְ���
 
@@ -46,16 +49,25 @@ public class GeneratedBlocks : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isPicked)
-            return;
-        //var pos = pose[hand].localPosition;  // �����universe origin
-        //var rot = pose[hand].localRotation;
-        int index = hand == SteamVR_Input_Sources.LeftHand ? 0 : 1;
-        var pos = controllerTransforms[index].position;  // ��������
-        var forward = controllerTransforms[index].forward;   // ǰ��
-        //var forward = (rot * Vector3.forward).normalized;
-        computeCoordToPlace(pos, forward);
-        floorGrid.VisualizeCoord(coordToPlace);
+        if (!isPicked)  // 没被捡起来且超时.
+        {
+            if (!isPlaced && Time.time - generated_time > duration)
+            {
+                floorGrid.minusCubeCnt(color);
+                DestroyGameObject();
+            }
+        }
+        else
+        {
+            //var pos = pose[hand].localPosition;  // �����universe origin
+            //var rot = pose[hand].localRotation;
+            int index = hand == SteamVR_Input_Sources.LeftHand ? 0 : 1;
+            var pos = controllerTransforms[index].position;  // ��������
+            var forward = controllerTransforms[index].forward;   // ǰ��
+                                                                 //var forward = (rot * Vector3.forward).normalized;
+            computeCoordToPlace(pos, forward);
+            floorGrid.VisualizeCoord(coordToPlace);
+        }
     }
 
     public void onPickup()
@@ -101,7 +113,7 @@ public class GeneratedBlocks : MonoBehaviour
         coordToPlace = new Vector2(x, z);
     }
 
-    public void SetColor(Color color)
+    public void InitiateGeneratedCube(Color color)
     {
         this.color = color;
         int index = Global.IndexOfColor(color);
@@ -115,6 +127,7 @@ public class GeneratedBlocks : MonoBehaviour
             generatedMat_RGBW[3] = Resources.Load<Material>("Materials/generated_white");
         }
         transform.GetComponentInChildren<MeshRenderer>().material = generatedMat_RGBW[index];
+        generated_time = Time.time;
     }
 
     void DestroyGameObject()

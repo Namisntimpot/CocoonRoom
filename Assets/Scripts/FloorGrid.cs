@@ -54,7 +54,7 @@ public class FloorGrid : MonoBehaviour
         visualizingCube.transform.localPosition = gridCoord;
     }
 
-    public void pickUpCube(Color color)
+    public void minusCubeCnt(Color color)
     {
         // ����һ�������ɫ�Ŀ�.
         if (color == Color.red)
@@ -65,6 +65,11 @@ public class FloorGrid : MonoBehaviour
             greenCubeCnt--;
         else
             whiteCubeCnt--;
+    }
+
+    public void pickUpCube(Color color)
+    {
+        minusCubeCnt(color);
     }
 
     /// <summary>
@@ -167,7 +172,7 @@ public class FloorGrid : MonoBehaviour
         Transform parent = transform.parent.Find("generatedBlocks");
         GameObject instance = Instantiate(generatedCube, parent, false);
         instance.transform.localPosition = position;
-        instance.GetComponent<GeneratedBlocks>().SetColor(color);
+        instance.GetComponent<GeneratedBlocks>().InitiateGeneratedCube(color);
     }
 
     public void GenerateCubes(Vector3[] positions, Color[] colors)
