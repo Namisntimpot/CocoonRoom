@@ -13,6 +13,7 @@ public class FloorGrid : MonoBehaviour
     public float x_min = -5.5f, x_max = 5.5f, z_min = -5.5f, z_max = 5.5f;
     public GameObject gridFloor, visualizingCube, generatedCube, pointlight;
     float range = 5;
+    public Material[] floorMaterialsByColorId;
      
     ArrayList placedIds = new ArrayList();  // ������±ꡣ����*gridLength+����
     int[,] grid;
@@ -20,7 +21,7 @@ public class FloorGrid : MonoBehaviour
     Transform roomTransform;   // 自己所处的room
 
     public int redCubeCnt = 0, greenCubeCnt = 0, blueCubeCnt = 0, whiteCubeCnt = 0;
-    int redLandCnt=1, greenLandCnt=1, blueLandCnt=1, whiteLandCnt=4;
+    float redLandCnt = 0.01f, greenLandCnt = 0.01f, blueLandCnt = 0.01f, whiteLandCnt=4;
     // Start is called before the first frame update
     void Start()
     {
@@ -81,7 +82,7 @@ public class FloorGrid : MonoBehaviour
         }
         int row = (int)(gridCoord.z - z_min);
         int col = (int)(gridCoord.x - x_min);
-        Debug.LogWarning("(" + row + ", " + col + ")");
+
         if (grid[row, col] != 0)
             return false;  // �ص���.
         int colorId = GetColorId(color);
@@ -91,7 +92,7 @@ public class FloorGrid : MonoBehaviour
         // "/room/grid/..."
         GameObject instance = Instantiate(gridFloor, this.transform, false);
         instance.transform.localPosition = gridCoord;
-        instance.GetComponent<MeshRenderer>().material.color = color;
+        instance.GetComponent<MeshRenderer>().material = floorMaterialsByColorId[colorId];
         Debug.Log("place cube in " + gridCoord);
         // ͳ��
         placedIds.Add(new Vector2(gridCoord.x, gridCoord.z));
@@ -254,20 +255,21 @@ public class FloorGrid : MonoBehaviour
     }
 
 
-    public int generateRate = 1;    //整体生成效率
-    public float gameDifficulty = 0.25f;   //白色生成概率最大值
+    public float generateRate = 1;    //整体生成效率
+    public float gameDifficulty = 1f;   //白色生成概率最大值
+    public float eps = 1e-6f;
     public void GenerateCubes()
     {
-        float eps = 1e-6f;
-        int existColorLandSum = redLandCnt + blueLandCnt + greenLandCnt;
-        float whitePossibility = (1 - (Mathf.Pow(existColorLandSum - redLandCnt, 2) + Mathf.Pow(existColorLandSum - greenLandCnt, 2) + Mathf.Pow(existColorLandSum - blueLandCnt, 2)) / (Mathf.Pow(existColorLandSum * (2/3), 2)+1)) * gameDifficulty;
+        float existColorLandSum = redLandCnt + blueLandCnt + greenLandCnt;
+        float whitePossibility = (1 - (Mathf.Pow(existColorLandSum / 3 - redLandCnt, 2) + Mathf.Pow(existColorLandSum / 3 - greenLandCnt, 2) + Mathf.Pow(existColorLandSum / 3 - blueLandCnt, 2)) / (Mathf.Pow(existColorLandSum * (2/3), 2) + eps)) * gameDifficulty;
         if(whitePossibility < 0.05f) whitePossibility = 0.05f;
-        float redPossibility = (redLandCnt / (existColorLandSum+eps)) * (1 - whitePossibility);
-        float greenPossibility = (greenLandCnt / (existColorLandSum+eps)) * (1 - whitePossibility);
-        float bluePossibility = (blueLandCnt / (existColorLandSum+eps)) * (1 - whitePossibility);
+        if (existColorLandSum == 0.03f) whitePossibility = 0;
+        float redPossibility = (redLandCnt / (existColorLandSum)) * (1 - whitePossibility);
+        float greenPossibility = (greenLandCnt / (existColorLandSum)) * (1 - whitePossibility);
+        float bluePossibility = (blueLandCnt / (existColorLandSum)) * (1 - whitePossibility);
         Debug.Log(redPossibility + ", " + greenPossibility + ", " + bluePossibility + ", " + whitePossibility);
         
-        int targetSum = (3 + (existColorLandSum + whiteLandCnt) / 3) * generateRate;
+        int targetSum = Mathf.RoundToInt((3 + (existColorLandSum + whiteLandCnt) / 3) * generateRate);
         int needAddCount = targetSum - (redCubeCnt + greenCubeCnt + blueCubeCnt + whiteCubeCnt);
         Vector3[] positions = new Vector3[needAddCount];
         Color[] colors = new Color[needAddCount];
@@ -293,9 +295,9 @@ public class FloorGrid : MonoBehaviour
             }
 
             int seedPosition = Mathf.RoundToInt(Random.Range(0f, placedIds.Count - 1f));
-            positions[i] = new Vector3(((Vector2)placedIds[seedPosition]).x + Random.Range(-0.5f, 0.5f), Random.Range(0.7f, 1f), ((Vector2)placedIds[seedPosition]).y + Random.Range(-0.5f, 0.5f));
+            positions[i] = new Vector3(((Vector2)placedIds[seedPosition]).x + Random.Range(-1f, 0f), Random.Range(0.7f, 1f), ((Vector2)placedIds[seedPosition]).y + Random.Range(0f, 1f));
         }
-        if(needAddCount>0)
+        if(needAddCount > 0)
             GenerateCubes(positions, colors);
     }
 }

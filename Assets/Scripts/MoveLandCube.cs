@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 原本的目的是，如果放到了一个不合法的位置，会自动滑一格到旁边可能正确的位置。但不debug，不管.
+/// </summary>
 public class MoveLandCube : MonoBehaviour
 {
     public void MoveTo(FloorGrid.MoveDirection move, bool dontDisappear)
